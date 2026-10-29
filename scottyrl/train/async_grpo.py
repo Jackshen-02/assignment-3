@@ -292,7 +292,18 @@ class AsyncGRPOTrainer:
         them with whatever happens to be current after rollout work awaits.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        task = self.tasks_by_id[task_id]
+        group = await collect_group(
+            policy, task, self.env_factory, self.cfg.group_size,
+            agent_cls=self.agent_cls(),
+        )
+        sequences, _ = groups_to_batch([group], method="grpo")
+        return GroupResult(
+            task_id=task_id,
+            policy_version=version,
+            sequences=sequences,
+            rewards=[trajectory.reward for trajectory in group],
+        )
 
     async def rollout_worker(
         self,
@@ -308,7 +319,11 @@ class AsyncGRPOTrainer:
         Do not catch errors here, let them propagate.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        while True:
+            task_id = next(task_iter)
+            policy, version = self.active_policy()
+            group = await self.generate_group(task_id, policy, version)
+            await results.put(group)
 
     async def collect_fresh_batch(
         self,
@@ -329,7 +344,15 @@ class AsyncGRPOTrainer:
         contribute no sequences.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        stats.setdefault("groups_dropped_stale", 0)
+        batch = []
+        while len(batch) < self.cfg.groups_per_batch:
+            group = await results.get()
+            if self.version - group.policy_version > self.cfg.max_staleness:
+                stats["groups_dropped_stale"] += 1
+            else:
+                batch.append(group)
+        return batch
 
     async def update(self, batch: list[GroupResult]) -> dict:
         """Run one optimizer step on the training sequences of every group
@@ -345,7 +368,11 @@ class AsyncGRPOTrainer:
         method.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        sequences = [sequence for group in batch for sequence in group.sequences]
+        return await self.session.train_step(
+            sequences, loss_fn=self.cfg.loss_fn, lr=self.cfg.lr,
+            grad_clip_norm=self.cfg.grad_clip_norm,
+        )
 
     async def evaluate_now(self, policy: TinkerPolicy) -> dict:
         """Evaluate ``policy`` on held-out validation tasks.
@@ -362,7 +389,10 @@ class AsyncGRPOTrainer:
         also calls this method for the step-0 baseline.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        return await evaluate_policy(
+            policy, self.val_tasks[:self.cfg.eval_tasks], self.env_factory,
+            k=self.cfg.eval_k, agent_cls=self.agent_cls(),
+        )
 
     # ------------------------------------------------------------- driver --
 
@@ -421,4 +451,80 @@ class AsyncGRPOTrainer:
         guidance: https://docs.python.org/3/library/asyncio-task.html#task-cancellation
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        stats = {"train_steps": 0, "groups_consumed": 0, "groups_dropped_stale": 0}
+        results = asyncio.Queue(maxsize=self.cfg.queue_capacity)
+        task_iter = itertools.cycle(task.id for task in self.train_tasks)
+        tasks = []
+        workers = []
+        evaluations = []
+        failure = asyncio.get_running_loop().create_future()
+        stopping_workers = False
+        closing = False
+
+        def start_task(coroutine, *, worker=False):
+            task = asyncio.create_task(coroutine)
+            tasks.append(task)
+
+            def finished(done):
+                # Wake the supervisor even if the learner is blocked on an
+                # empty queue or a backend request. Keep the original error.
+                if done.cancelled():
+                    if closing or (worker and stopping_workers):
+                        return
+                    error = asyncio.CancelledError()
+                else:
+                    error = done.exception()
+                    if error is None and worker and not stopping_workers:
+                        error = RuntimeError("Rollout worker stopped before training finished")
+                if error is not None and not failure.done():
+                    failure.set_result(error)
+
+            task.add_done_callback(finished)
+            return task
+
+        async def learn():
+            for step in range(1, self.cfg.num_steps + 1):
+                batch = await self.collect_fresh_batch(results, stats)
+                train_metrics = {}
+                if any(group.sequences for group in batch):
+                    train_metrics = await self.update(batch)
+                    await self.publish_policy(self.version + 1)
+                self.record_training(step, batch, train_metrics)
+                stats["train_steps"] += 1
+                stats["groups_consumed"] += len(batch)
+                if self.eval_due(step):
+                    policy, version = self.active_policy()
+                    evaluations.append(start_task(
+                        self.run_evaluation(policy, version, step)
+                    ))
+
+        try:
+            await self.publish_policy(0)
+            for _ in range(self.cfg.num_workers):
+                workers.append(start_task(
+                    self.rollout_worker(results, task_iter), worker=True
+                ))
+            learner = start_task(learn())
+            await asyncio.wait([learner, failure], return_when=asyncio.FIRST_COMPLETED)
+            if failure.done():
+                raise failure.result()
+            await learner
+
+            stopping_workers = True
+            for worker in workers:
+                worker.cancel()
+            await asyncio.gather(*workers, return_exceptions=True)
+            if failure.done():
+                raise failure.result()
+            await asyncio.gather(*evaluations)
+            if failure.done():
+                raise failure.result()
+            return stats
+        finally:
+            # Also runs on cancellation: no background task survives train().
+            closing = True
+            for task in tasks:
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(*tasks, return_exceptions=True)
+            failure.cancel()

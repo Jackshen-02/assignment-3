@@ -1,0 +1,356 @@
+{
+  "p2a": {
+    "run_name": "p2a_number_search_reinforce",
+    "baseline_eval_success": 0.355,
+    "final_eval_success": 0.565,
+    "final_eval_pass_at_4": 0.94,
+    "optimizer_updates": 50,
+    "skipped_steps": [],
+    "wall_minutes_after_baseline": 21.05829923550288,
+    "final_sampler_path": "tinker://model_3b7ac1c5/step_000050",
+    "mean_step_seconds": 24.461473441123964,
+    "first20_degenerate_fraction": 0.0,
+    "first20_sequences_per_step": 8.0,
+    "groups_dropped_stale": null,
+    "grad_norm": {
+      "min": 0.12617990374565125,
+      "max": 0.5947407484054565,
+      "final": 0.37995439767837524
+    },
+    "importance_weight_mean": {
+      "min": 0.9982712010777582,
+      "max": 1.001093782872116,
+      "final": 1.0004501858004209
+    },
+    "importance_weight_min": {
+      "min": 0.582892475368026,
+      "max": 0.8939238422714688,
+      "final": 0.8557822573924577
+    },
+    "importance_weight_max": {
+      "min": 1.1170303223967217,
+      "max": 1.82549290008359,
+      "final": 1.1264270730948227
+    },
+    "importance_weight_std": {
+      "min": 0.013671145801969214,
+      "max": 0.03442216293013093,
+      "final": 0.02013768571770313
+    },
+    "entropy_proxy": {
+      "min": 0.09236219359095281,
+      "max": 0.2569509197619722,
+      "final": 0.1809146457662823
+    }
+  },
+  "p2b": {
+    "run_name": "p2b_number_search_grpo",
+    "baseline_eval_success": 0.37,
+    "final_eval_success": 0.99,
+    "final_eval_pass_at_4": 1.0,
+    "optimizer_updates": 36,
+    "skipped_steps": [
+      22,
+      24,
+      26,
+      27,
+      28,
+      30,
+      35,
+      36,
+      37,
+      38,
+      41,
+      43,
+      45,
+      48
+    ],
+    "wall_minutes_after_baseline": 35.64688798586528,
+    "final_sampler_path": "tinker://model_283d61ad/step_000050",
+    "mean_step_seconds": 41.51195858001709,
+    "first20_degenerate_fraction": 0.2,
+    "first20_sequences_per_step": 51.2,
+    "groups_dropped_stale": null,
+    "grad_norm": {
+      "min": 0.03337264060974121,
+      "max": 0.1278790831565857,
+      "final": 0.03373642638325691
+    },
+    "importance_weight_mean": {
+      "min": 0.9993526248493588,
+      "max": 1.0004673987076904,
+      "final": 0.9999734857218925
+    },
+    "importance_weight_min": {
+      "min": 0.46152558062011273,
+      "max": 0.8874415130447606,
+      "final": 0.778926313256489
+    },
+    "importance_weight_max": {
+      "min": 1.1375652990518628,
+      "max": 2.396974358882204,
+      "final": 1.2719279608157912
+    },
+    "importance_weight_std": {
+      "min": 0.008388925476154887,
+      "max": 0.026681644986285783,
+      "final": 0.012148716432125133
+    },
+    "entropy_proxy": {
+      "min": 0.03244792516328643,
+      "max": 0.18488689687244525,
+      "final": 0.04832084545391059
+    }
+  },
+  "p3": {
+    "run_name": "p3_number_search_async",
+    "baseline_eval_success": 0.35,
+    "final_eval_success": 1.0,
+    "final_eval_pass_at_4": 1.0,
+    "optimizer_updates": 47,
+    "skipped_steps": [
+      44,
+      45,
+      46
+    ],
+    "wall_minutes_after_baseline": 26.58697754939397,
+    "final_sampler_path": "tinker://model_2837e928/v47",
+    "mean_step_seconds": 30.47601341724396,
+    "first20_degenerate_fraction": 0.10625,
+    "first20_sequences_per_step": 57.2,
+    "groups_dropped_stale": 62,
+    "grad_norm": {
+      "min": 0.027173401787877083,
+      "max": 0.13749812543392181,
+      "final": 0.044929809868335724
+    },
+    "importance_weight_mean": {
+      "min": 0.9987965768737782,
+      "max": 1.0008446988757833,
+      "final": 1.000028112281061
+    },
+    "importance_weight_min": {
+      "min": 0.340403214102522,
+      "max": 0.7881362355974096,
+      "final": 0.4325608600479649
+    },
+    "importance_weight_max": {
+      "min": 1.1768676442969346,
+      "max": 2.4793434655284963,
+      "final": 1.9808207067248733
+    },
+    "importance_weight_std": {
+      "min": 0.017253067812878407,
+      "max": 0.033322491095164296,
+      "final": 0.018713080429486717
+    },
+    "entropy_proxy": {
+      "min": 0.040415556847096655,
+      "max": 0.2200352594392953,
+      "final": 0.059114528529344984
+    }
+  },
+  "p41": {
+    "run_name": "p41_number_search_grpo_g2",
+    "baseline_eval_success": 0.305,
+    "final_eval_success": 0.89,
+    "final_eval_pass_at_4": 1.0,
+    "optimizer_updates": 49,
+    "skipped_steps": [
+      49
+    ],
+    "wall_minutes_after_baseline": 22.654616717497507,
+    "final_sampler_path": "tinker://model_12729f24/step_000050",
+    "mean_step_seconds": 26.13800509929657,
+    "first20_degenerate_fraction": 0.61875,
+    "first20_sequences_per_step": 6.1,
+    "groups_dropped_stale": null,
+    "grad_norm": {
+      "min": 0.18010830879211426,
+      "max": 0.8218652606010437,
+      "final": 0.27452564239501953
+    },
+    "importance_weight_mean": {
+      "min": 0.9980587262275485,
+      "max": 1.0030978797417995,
+      "final": 1.0000533599418004
+    },
+    "importance_weight_min": {
+      "min": 0.6977199814435106,
+      "max": 0.9623362552584233,
+      "final": 0.8456318296703709
+    },
+    "importance_weight_max": {
+      "min": 1.0904828384671659,
+      "max": 1.5378632212323882,
+      "final": 1.3587053037062058
+    },
+    "importance_weight_std": {
+      "min": 0.010871707396808128,
+      "max": 0.02823889814139595,
+      "final": 0.02017703922291811
+    },
+    "entropy_proxy": {
+      "min": 0.07264936939706354,
+      "max": 0.27780863875468953,
+      "final": 0.13764722814915267
+    }
+  },
+  "iw": {
+    "run_name": "p43_number_search_async_stale4_iw",
+    "baseline_eval_success": 0.36,
+    "final_eval_success": 0.99,
+    "final_eval_pass_at_4": 1.0,
+    "optimizer_updates": 41,
+    "skipped_steps": [
+      34,
+      35,
+      36,
+      38,
+      39,
+      41,
+      45,
+      47,
+      50
+    ],
+    "wall_minutes_after_baseline": 23.13963786760966,
+    "final_sampler_path": "tinker://model_5d24523f/v41",
+    "mean_step_seconds": 26.49732089996338,
+    "first20_degenerate_fraction": 0.1,
+    "first20_sequences_per_step": 57.6,
+    "groups_dropped_stale": 0,
+    "grad_norm": {
+      "min": 0.031069666147232056,
+      "max": 0.15834689140319824,
+      "final": 0.08247356861829758
+    },
+    "importance_weight_mean": {
+      "min": 0.9990989233445972,
+      "max": 1.0006375952630762,
+      "final": 1.0000290977705182
+    },
+    "importance_weight_min": {
+      "min": 0.2789092496371172,
+      "max": 0.792237401903796,
+      "final": 0.7899128222499251
+    },
+    "importance_weight_max": {
+      "min": 1.1318497107756036,
+      "max": 3.9570126296970263,
+      "final": 1.2818659179311789
+    },
+    "importance_weight_std": {
+      "min": 0.010747352892294984,
+      "max": 0.06699016560521841,
+      "final": 0.01463552830394518
+    },
+    "entropy_proxy": {
+      "min": 0.04786043104170544,
+      "max": 0.20456740512546212,
+      "final": 0.07075896193433814
+    }
+  },
+  "noiw": {
+    "run_name": "p43_number_search_async_stale4_noiw",
+    "baseline_eval_success": 0.315,
+    "final_eval_success": 0.995,
+    "final_eval_pass_at_4": 1.0,
+    "optimizer_updates": 36,
+    "skipped_steps": [
+      30,
+      35,
+      36,
+      37,
+      38,
+      39,
+      41,
+      42,
+      43,
+      45,
+      46,
+      47,
+      48,
+      50
+    ],
+    "wall_minutes_after_baseline": 23.536270368099213,
+    "final_sampler_path": "tinker://model_b28d642d/v36",
+    "mean_step_seconds": 26.83610294342041,
+    "first20_degenerate_fraction": 0.10625,
+    "first20_sequences_per_step": 57.2,
+    "groups_dropped_stale": 0,
+    "grad_norm": {
+      "min": 0.03782910481095314,
+      "max": 0.1599985957145691,
+      "final": 0.08623731136322021
+    },
+    "importance_weight_mean": {
+      "min": 0.9991015710412969,
+      "max": 1.001491703165639,
+      "final": 1.0002879364770385
+    },
+    "importance_weight_min": {
+      "min": 0.043333656697022736,
+      "max": 0.7951032227456001,
+      "final": 0.7951032227456001
+    },
+    "importance_weight_max": {
+      "min": 1.1618169024780667,
+      "max": 4.351655634690328,
+      "final": 1.3391158624524002
+    },
+    "importance_weight_std": {
+      "min": 0.015614534797341827,
+      "max": 0.1035319669836172,
+      "final": 0.015614534797341827
+    },
+    "entropy_proxy": {
+      "min": 0.05109370408986451,
+      "max": 0.21418007030343184,
+      "final": 0.06460294503727247
+    }
+  },
+  "p5": {
+    "run_name": "p5_textcraft_grpo",
+    "baseline_eval_success": 0.125,
+    "final_eval_success": 0.6,
+    "final_eval_pass_at_4": 0.74,
+    "optimizer_updates": 50,
+    "skipped_steps": [],
+    "wall_minutes_after_baseline": 1144.362273399035,
+    "final_sampler_path": "tinker://model_4cd96c46/v50_r1",
+    "mean_step_seconds": 796.9480072975159,
+    "first20_degenerate_fraction": 0.49375,
+    "first20_sequences_per_step": 64.85,
+    "groups_dropped_stale": 0,
+    "grad_norm": {
+      "min": 0.006016905419528484,
+      "max": 0.011641517281532288,
+      "final": 0.008544235490262508
+    },
+    "importance_weight_mean": {
+      "min": 0.999937454172195,
+      "max": 1.000070650414656,
+      "final": 0.9999913146632714
+    },
+    "importance_weight_min": {
+      "min": 0.016174442738144734,
+      "max": 0.5353257509831965,
+      "final": 0.20054090312439887
+    },
+    "importance_weight_max": {
+      "min": 1.6347741646120493,
+      "max": 3.100542248058326,
+      "final": 2.1700334958352214
+    },
+    "importance_weight_std": {
+      "min": 0.02458985436766222,
+      "max": 0.02876544772730777,
+      "final": 0.02489658777260563
+    },
+    "entropy_proxy": {
+      "min": 0.32346504649799324,
+      "max": 0.514013470295414,
+      "final": 0.32346504649799324
+    }
+  }
+}

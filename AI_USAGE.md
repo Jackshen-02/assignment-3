@@ -1,0 +1,1 @@
+I use Codex to help me understand the concepts and codebase, look up Tinker API details, and answer API questions. I also use Codex to debug server errors and make plots from my results for the report.

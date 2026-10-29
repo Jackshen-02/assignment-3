@@ -337,7 +337,15 @@ class TinkerSession:
         import tinker
 
         # TODO(student): implement this method.
-        raise NotImplementedError
+        fwd_future = await self.training_client.forward_backward_async(
+            datums, loss_fn=loss_fn
+        )
+        opt_future = await self.training_client.optim_step_async(
+            tinker.AdamParams(learning_rate=lr, grad_clip_norm=grad_clip_norm)
+        )
+        fwd_result = await fwd_future.result_async()
+        opt_result = await opt_future.result_async()
+        return fwd_result, opt_result
 
     async def train_step(
         self,

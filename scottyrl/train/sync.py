@@ -167,7 +167,14 @@ class SyncTrainer:
         Returns: list of groups - one group (list of Trajectory) per sampled task.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        tasks = self.rng.sample(self.train_tasks, self.cfg.tasks_per_batch)
+        return await asyncio.gather(*(
+            collect_group(
+                policy, task, self.env_factory, self.cfg.group_size,
+                agent_cls=self.agent_cls(),
+            )
+            for task in tasks
+        ))
 
     def build_batch(
         self, groups: list[list[Trajectory]]
@@ -180,7 +187,7 @@ class SyncTrainer:
         `record_training`, which merges `stats` into the step's record.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        return groups_to_batch(groups, method=self.cfg.algo)
 
     async def update(self, seqs: list[TokenSequence]) -> dict:
         """Run one optimizer step on `seqs` through the session:
@@ -191,7 +198,10 @@ class SyncTrainer:
         here.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        return await self.session.train_step(
+            seqs, loss_fn=self.cfg.loss_fn, lr=self.cfg.lr,
+            grad_clip_norm=self.cfg.grad_clip_norm,
+        )
 
     async def evaluate_now(self, policy) -> dict:
         """Held-out evaluation of `policy`: the first cfg.eval_tasks
@@ -203,7 +213,10 @@ class SyncTrainer:
         entry script also calls this method for the step-0 baseline.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        return await evaluate_policy(
+            policy, self.val_tasks[:self.cfg.eval_tasks], self.env_factory,
+            k=self.cfg.eval_k, agent_cls=self.agent_cls(),
+        )
 
     # ------------------------------------------------------------- driver --
 
@@ -238,4 +251,18 @@ class SyncTrainer:
             handle the periodic evaluations.
         """
         # TODO(student): implement this method.
-        raise NotImplementedError
+        policy = self.make_policy(
+            await self.session.new_sampling_client("step_000000")
+        )
+        for step in range(1, self.cfg.num_steps + 1):
+            groups = await self.collect_batch(policy)
+            sequences, batch_stats = self.build_batch(groups)
+            train_metrics = {}
+            if sequences:
+                train_metrics = await self.update(sequences)
+                policy = self.make_policy(
+                    await self.session.new_sampling_client(f"step_{step:06d}")
+                )
+            self.record_training(step, groups, sequences, batch_stats, train_metrics)
+            if self.eval_due(step):
+                self.record_evaluation(step, await self.evaluate_now(policy))

@@ -37,7 +37,10 @@ async def collect_group(
     Returns: `group_size` trajectories, in rollout order.
     """
     # TODO(student): implement this function.
-    raise NotImplementedError
+    return await asyncio.gather(*(
+        run_episode(agent_cls(policy), env_factory(task))
+        for _ in range(group_size)
+    ))
 
 
 def groups_to_batch(
@@ -66,4 +69,24 @@ def groups_to_batch(
         "num_action_tokens"       total mask==1 positions in the batch
     """
     # TODO(student): implement this function.
-    raise NotImplementedError
+    sequences: list[TokenSequence] = []
+    rewards: list[float] = []
+    num_degenerate = 0
+    for group in groups:
+        group_rewards = [trajectory.reward for trajectory in group]
+        rewards.extend(group_rewards)
+        advantages = compute_group_advantages(group_rewards, method=method)
+        if advantages is None:
+            num_degenerate += 1
+            continue
+        for trajectory, advantage in zip(group, advantages):
+            sequences.extend(trajectory_to_training_sequences(trajectory, advantage))
+
+    return sequences, {
+        "num_groups": len(groups),
+        "num_degenerate_groups": num_degenerate,
+        "frac_degenerate_groups": num_degenerate / len(groups) if groups else 0.0,
+        "mean_reward": sum(rewards) / len(rewards) if rewards else 0.0,
+        "num_sequences": len(sequences),
+        "num_action_tokens": sum(sequence.num_action_tokens for sequence in sequences),
+    }

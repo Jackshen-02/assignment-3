@@ -33,7 +33,9 @@ def extension_suffix(accumulated: list[int], prompt_tokens: list[int]) -> list[i
         extension_suffix([], [1, 2])                 -> [1, 2]  (an empty sequence is a prefix of anything)
     """
     # TODO(student): implement this function.
-    raise NotImplementedError
+    if prompt_tokens[:len(accumulated)] == accumulated:
+        return prompt_tokens[len(accumulated):]
+    return None
 
 
 def stitch_trajectory(traj: Trajectory) -> list[TokenSequence]:
@@ -79,7 +81,40 @@ def stitch_trajectory(traj: Trajectory) -> list[TokenSequence]:
     Returns: list of TokenSequence (possibly empty).
     """
     # TODO(student): implement this function.
-    raise NotImplementedError
+    sequences: list[TokenSequence] = []
+    tokens: list[int] = []
+    token_mask: list[int] = []
+    token_logprobs: list[float] = []
+
+    def emit_sequence() -> None:
+        # Track metadata per token first, then align it with tokens[1:].
+        if len(tokens) >= 2 and any(token_mask[1:]):
+            sequences.append(TokenSequence(
+                tokens=tokens,
+                mask=token_mask[1:],
+                logprobs=token_logprobs[1:],
+                advantages=[0.0] * (len(tokens) - 1),
+            ))
+
+    for call in traj.calls:
+        suffix = extension_suffix(tokens, call.prompt_tokens)
+        if suffix is None:
+            emit_sequence()
+            tokens = []
+            token_mask = []
+            token_logprobs = []
+            suffix = call.prompt_tokens
+
+        tokens.extend(suffix)
+        token_mask.extend([0] * len(suffix))
+        token_logprobs.extend([0.0] * len(suffix))
+
+        tokens.extend(call.completion_tokens)
+        token_mask.extend([1] * len(call.completion_tokens))
+        token_logprobs.extend(call.completion_logprobs)
+
+    emit_sequence()
+    return sequences
 
 
 def trajectory_to_training_sequences(traj: Trajectory, advantage: float) -> list[TokenSequence]:
@@ -89,4 +124,9 @@ def trajectory_to_training_sequences(traj: Trajectory, advantage: float) -> list
     in an episode share the episode-level advantage.)
     """
     # TODO(student): implement this function.
-    raise NotImplementedError
+    sequences = stitch_trajectory(traj)
+    for sequence in sequences:
+        sequence.advantages = [
+            advantage if is_action else 0.0 for is_action in sequence.mask
+        ]
+    return sequences
